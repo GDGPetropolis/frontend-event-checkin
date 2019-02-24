@@ -21,7 +21,7 @@ export default {
               this.people = response.data
             })
             .catch(e => {
-              self.errors = e
+              this.errors = e
             })
   }
 }
