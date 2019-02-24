@@ -15,10 +15,10 @@ export default {
       errors: null
     }
   },
-  beforeMount() {
-    axios_client.get("https://api.meetup.com/GDGPetropolis/events?photo-host=public&page=1&key=...")
+  created() {
+    axios_client.get("api/event")
             .then(response => {
-              self.people = response.data
+              this.people = response.data
             })
             .catch(e => {
               self.errors = e
