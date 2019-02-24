@@ -54,6 +54,7 @@
 
 <script>
 import axios_client from "./axios_client";
+import all_events from "./event_list.json";
 
 export default {
   data () {
@@ -64,14 +65,16 @@ export default {
     }
   },
   created() {
-    axios_client.get("api/event")
+    this.loaded = true;
+    this.events = all_events;
+    /*axios_client.get("api/event")
             .then(response => {
               this.events = response.data
               this.loaded = true
             })
             .catch(e => {
               this.errors = e
-            })
+            })*/
   }
 }
 </script>
