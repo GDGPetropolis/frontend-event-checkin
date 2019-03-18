@@ -1,1 +1,1 @@
-module.exports = "http://192.168.0.103:5000/";
+module.exports = "http://localhost:5000/";
