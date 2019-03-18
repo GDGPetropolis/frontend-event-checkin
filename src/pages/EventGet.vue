@@ -84,7 +84,7 @@
             this.fields = this.getFieldsOfItems(this.items);
         },
         methods: {
-            mapClub(item){
+            mapEvent(item){
                 var new_item = {
                     "Id": item.id,
                     "Nome": item.name,
@@ -95,7 +95,7 @@
             },
             async get_events(){
                 var response = await axios_client.get("api/event");
-                return response.data.map(this.mapClub);
+                return response.data.map(this.mapEvent);
             },
             onFiltered (filteredItems) {
                 // Trigger pagination to update the number of buttons/pages due to filtering

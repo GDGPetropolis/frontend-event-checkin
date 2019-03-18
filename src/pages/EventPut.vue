@@ -31,7 +31,9 @@
                              @filtered="onFiltered">
 
                         <template slot="actions" slot-scope="row">
-                            <router-link :to="{ path: '/' + route + '-put/' + row.item.Id }">Check-in</router-link>
+                            <b-btn class="btn-success btn-sm">Check-in</b-btn>
+                            <b-btn class="btn-danger btn-sm">Check-out</b-btn>
+                            <b-btn class="btn-primary btn-sm">Cadastrar Email</b-btn>
                         </template>
 
                     </b-table>
@@ -76,6 +78,7 @@
         },
         async mounted () {
             this.items = await this.get_persons();
+            this.participations = await this.get_participations();
             this.fields = this.getFieldsOfItems(this.items);
             this.loaded = true;
         },
@@ -84,7 +87,7 @@
             this.fields = this.getFieldsOfItems(this.items);
         },
         methods: {
-            mapClub(item){
+            mapPerson(item){
                 var new_item = {
                     "Id": item.id,
                     "Nome": item.name,
@@ -100,7 +103,11 @@
             },
             async get_persons() {
                 var response = await axios_client.get("api/event?id=" + this.$route.params.id);
-                return response.data.persons.map(this.mapClub);
+                return response.data.persons.map(this.mapPerson);
+            },
+            async get_participations() {
+                var response = await axios_client.get("api/participation?event_id=" + this.$route.params.id);
+                console.log(response)
             }
         }
     }
