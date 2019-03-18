@@ -74,17 +74,10 @@
                 filter: null,
             }
         },
-        mounted () {
-            axios_client.get("api/event?id=" + this.$route.params.id)
-                .then(response => {
-                    this.items = response.data.persons.map(this.mapClub);
-                    this.fields = this.getFieldsOfItems(this.items);
-
-                    this.loaded = true;
-                })
-                .catch(e => {
-                    this.errors = e
-                })
+        async mounted () {
+            this.items = await this.get_persons();
+            this.fields = this.getFieldsOfItems(this.items);
+            this.loaded = true;
         },
         beforeUpdate() {
             this.totalRows = this.items.length;
@@ -104,6 +97,10 @@
                 // Trigger pagination to update the number of buttons/pages due to filtering
                 this.totalRows = filteredItems.length
                 this.currentPage = 1
+            },
+            async get_persons() {
+                var response = await axios_client.get("api/event?id=" + this.$route.params.id);
+                return response.data.persons.map(this.mapClub);
             }
         }
     }
