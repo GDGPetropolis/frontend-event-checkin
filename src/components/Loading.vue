@@ -1,11 +1,9 @@
 <template>
-<div class="centralize-wrapper">
-    <div class="centralize">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
+    <div class="centralize-wrapper">
+        <div class="centralize">
+            Loading...
         </div>
     </div>
-</div>
 </template>
 
 <style scoped>

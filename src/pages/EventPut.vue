@@ -2,6 +2,14 @@
     <b-container>
         <div v-if="loaded">
             <b-row>
+                <b-col style="padding: 20px 20px 20px 20px;" md="6" class="my-1">
+                    <h4> {{event_name}} ({{event_total}}/{{event_checkin}}) </h4>
+                    <b-btn class="btn-warning btn-sm" v-on:click="syncWithMeetup">Sincronizar com Meetup</b-btn>
+                </b-col>
+            </b-row>
+
+
+            <b-row>
                 <b-col md="6" class="my-1">
                     <b-form-group horizontal label="Filtro" class="mb-0">
                         <b-input-group>
@@ -31,9 +39,9 @@
                              @filtered="onFiltered">
 
                         <template slot="actions" slot-scope="row">
-                            <b-btn class="btn-success btn-sm">Check-in</b-btn>
-                            <b-btn class="btn-danger btn-sm">Check-out</b-btn>
-                            <b-btn class="btn-primary btn-sm">Cadastrar Email</b-btn>
+                            <b-btn v-if="!row.item.checkin" class="btn-success btn-sm">Check-in</b-btn>
+                            <b-btn v-else class="btn-danger btn-sm">Check-out</b-btn>
+                            <b-btn v-if="row.item.Email == null" class="btny btn-sm">Cadastrar Email</b-btn>
                         </template>
 
                     </b-table>
@@ -54,13 +62,9 @@
 
 <script>
     import Loading from "./../components/Loading.vue"
-    import TableHelper from "./../mixins/TableHelper"
     import axios_client from "./../axios_client";
 
     export default {
-        mixins: [
-            TableHelper
-        ],
         components: {
             Loading
         },
@@ -74,25 +78,49 @@
                 totalRows: 0,
                 pageOptions: [ 5, 10, 15 ],
                 filter: null,
+                event_name: null,
+                event_total: null,
+                event_checkin: null
             }
         },
         async mounted () {
-            this.items = await this.get_persons();
-            this.participations = await this.get_participations();
-            this.fields = this.getFieldsOfItems(this.items);
-            this.loaded = true;
+            await this.refreshContent();
         },
         beforeUpdate() {
             this.totalRows = this.items.length;
             this.fields = this.getFieldsOfItems(this.items);
         },
         methods: {
+            async refreshContent(){
+                var event = await this.get_event();
+                var persons = event.persons;
+                var participations = await this.get_participations();
+
+                persons.forEach(function (x) {
+                    var participation = participations.filter(function (y) {
+                        return x.id === y.person_id
+                    });
+
+                    x.checkin = participation[0].checkin;
+                });
+
+                this.items = persons.map(this.mapPerson);
+                this.fields = this.getFieldsOfItems(this.items);
+                this.event_name = event.name;
+                this.event_checkin = participations.filter(function (x) {return x.checkin }).length;
+                this.event_total = participations.length
+                this.loaded = true;
+            },
             mapPerson(item){
                 var new_item = {
                     "Id": item.id,
                     "Nome": item.name,
                     "Email": item.email,
+                    "Comparaceu": item.checkin ? "Sim" : "Não"
                 };
+
+                if(new_item.Comparaceu === "Sim")
+                    new_item._rowVariant = "success";
 
                 return new_item;
             },
@@ -101,13 +129,36 @@
                 this.totalRows = filteredItems.length
                 this.currentPage = 1
             },
-            async get_persons() {
+            async get_event() {
                 var response = await axios_client.get("api/event?id=" + this.$route.params.id);
-                return response.data.persons.map(this.mapPerson);
+                return response.data;
             },
             async get_participations() {
                 var response = await axios_client.get("api/participation?event_id=" + this.$route.params.id);
-                console.log(response)
+                return response.data;
+            },
+            getFieldsOfItems(list) {
+                var options = [];
+                var obj = list[0];
+
+                for(var k in obj){
+                    var testValue = {
+                        key: k,
+                        sortable: true
+                    }
+
+                    options.push(testValue);
+                }
+
+                var action = { key: 'actions', label: 'Ações' };
+                options.push(action);
+
+                return options;
+            },
+            async syncWithMeetup(){
+                this.loaded = false;
+                await axios_client.post("/api/event/sync?id=" + this.$route.params.id);
+                await this.refreshContent()
             }
         }
     }
