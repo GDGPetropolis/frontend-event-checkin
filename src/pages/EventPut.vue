@@ -39,8 +39,8 @@
                              @filtered="onFiltered">
 
                         <template slot="actions" slot-scope="row">
-                            <b-btn v-if="!row.item.checkin" class="btn-success btn-sm">Check-in</b-btn>
-                            <b-btn v-else class="btn-danger btn-sm">Check-out</b-btn>
+                            <b-btn v-if="!row.item.checkin" class="btn-success btn-sm" v-on:click="checkin(row.item.Id, true)">Check-in</b-btn>
+                            <b-btn v-else class="btn-danger btn-sm" v-on:click="checkin(row.item.Id, false)">Check-out</b-btn>
                             <b-btn v-if="row.item.Email == null" class="btny btn-sm">Cadastrar Email</b-btn>
                         </template>
 
@@ -78,6 +78,7 @@
                 totalRows: 0,
                 pageOptions: [ 5, 10, 15 ],
                 filter: null,
+                event_id: null,
                 event_name: null,
                 event_total: null,
                 event_checkin: null
@@ -106,6 +107,7 @@
 
                 this.items = persons.map(this.mapPerson);
                 this.fields = this.getFieldsOfItems(this.items);
+                this.event_id = event.id;
                 this.event_name = event.name;
                 this.event_checkin = participations.filter(function (x) {return x.checkin }).length;
                 this.event_total = participations.length
@@ -158,6 +160,19 @@
             async syncWithMeetup(){
                 this.loaded = false;
                 await axios_client.post("/api/event/sync?id=" + this.$route.params.id);
+                await this.refreshContent();
+            },
+            async checkin(person_id, status){
+                this.loaded = false;
+
+                var participation = {
+                    person_id: person_id,
+                    event_id: this.event_id,
+                    checkin: status
+                };
+
+                console.log(participation);
+
                 await this.refreshContent()
             }
         }
