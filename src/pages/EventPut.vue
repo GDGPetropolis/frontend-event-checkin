@@ -45,7 +45,7 @@
 
                             <b-btn class="btn-info btn-sm" v-on:click="openMeetup(row.item.id)">Meetup</b-btn>
 
-                            <b-btn v-if="row.item.email == null || row.item.nome == null" variant="primary" class="btn-sm" v-on:click="showModal(row.item.id)">Setup</b-btn>
+                            <b-btn variant="primary" class="btn-sm" v-on:click="showModal(row.item.id)">Setup</b-btn>
                         </template>
 
                     </b-table>
@@ -116,6 +116,9 @@
             this.fields = this.mapItems();
         },
         methods: {
+            isNullOfStringEmpty(value) {
+                return value === null || value === "";
+            },
             async refreshContent(){
                 var event = await this.get_event();
                 var persons = event.persons;
