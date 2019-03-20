@@ -5,6 +5,7 @@
                 <b-col style="padding: 20px 20px 20px 20px;" md="6" class="my-1">
                     <h4> {{event_name}} ({{event_checkin}}/{{event_total}}) </h4>
                     <b-btn class="btn-warning btn-sm" v-on:click="syncWithMeetup">Sincronizar com Meetup</b-btn>
+                    <b-btn class="btn-warning btn-sm" v-on:click="sendCertifications" disabled>Enviar Certificados</b-btn>
                 </b-col>
             </b-row>
 
@@ -44,7 +45,7 @@
 
                             <b-btn class="btn-info btn-sm" v-on:click="openMeetup(row.item.id)">Meetup</b-btn>
 
-                            <b-btn v-if="row.item.email == null || row.item.nome == null" variant="primary" class="btn-sm">Setup</b-btn>
+                            <b-btn v-if="row.item.email == null || row.item.nome == null" variant="primary" class="btn-sm" v-on:click="showModal(row.item.id)">Setup</b-btn>
                         </template>
 
                     </b-table>
@@ -60,6 +61,21 @@
         <div v-else>
             <Loading/>
         </div>
+
+
+        <b-modal ref="myModalRef" size="lg" hide-footer title="Setup de Participante">
+            <b-row>
+                <b-col md="5">
+                    <b-input id="inlineFormInputName" placeholder="Informe o Nome..." v-model="modal_person.name"/>
+                </b-col>
+                <b-col md="5">
+                    <b-input id="inlineFormInputGroupUsername2" placeholder="Informe o Email..." v-model="modal_person.email"/>
+                </b-col>
+                <b-col md="2">
+                    <b-button variant="primary" v-on:click="doModalPersonSetup">Fazer Setup</b-button>
+                </b-col>
+            </b-row>
+        </b-modal>
     </b-container>
 </template>
 
@@ -84,7 +100,12 @@
                 event_id: null,
                 event_name: null,
                 event_total: null,
-                event_checkin: null
+                event_checkin: null,
+                modal_person: {
+                    id: null,
+                    name: null,
+                    email: null
+                }
             }
         },
         async mounted () {
@@ -92,7 +113,7 @@
         },
         beforeUpdate() {
             this.totalRows = this.items.length;
-            this.fields = this.getFieldsOfItems(this.items);
+            this.fields = this.mapItems();
         },
         methods: {
             async refreshContent(){
@@ -176,6 +197,20 @@
             },
             openMeetup(id){
                 window.open("https://www.meetup.com/pt-BR/members/" + id, '_blank');
+            },
+            sendCertifications() {
+
+            },
+            showModal(id){
+                this.modal_person.id = id;
+                this.modal_person.name = "";
+                this.modal_person.email = "";
+                this.$refs.myModalRef.show()
+            },
+            async doModalPersonSetup(){
+                await axios_client.put("/api/person", this.modal_person);
+                await this.refreshContent();
+                this.$refs.myModalRef.hide();
             }
         }
     }
