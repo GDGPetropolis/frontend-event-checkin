@@ -3,7 +3,7 @@
         <div v-if="loaded">
             <b-row>
                 <b-col style="padding: 20px 20px 20px 20px;" md="6" class="my-1">
-                    <h4> {{event_name}} ({{event_total}}/{{event_checkin}}) </h4>
+                    <h4> {{event_name}} ({{event_checkin}}/{{event_total}}) </h4>
                     <b-btn class="btn-warning btn-sm" v-on:click="syncWithMeetup">Sincronizar com Meetup</b-btn>
                 </b-col>
             </b-row>
@@ -39,9 +39,12 @@
                              @filtered="onFiltered">
 
                         <template slot="actions" slot-scope="row">
-                            <b-btn v-if="!row.item.checkin" class="btn-success btn-sm" v-on:click="checkin(row.item.Id, true)">Check-in</b-btn>
+                            <b-btn v-if="row.item.Compareceu == 'Não'" class="btn-success btn-sm" v-on:click="checkin(row.item.Id, true)">Check-in</b-btn>
                             <b-btn v-else class="btn-danger btn-sm" v-on:click="checkin(row.item.Id, false)">Check-out</b-btn>
-                            <b-btn v-if="row.item.Email == null" class="btny btn-sm">Cadastrar Email</b-btn>
+
+                            <b-btn class="btn-info btn-sm" v-on:click="openMeetup(row.item.Id)">Meetup</b-btn>
+
+                            <b-btn v-if="row.item.Email == null" variant="primary" class="btn-sm">Setup</b-btn>
                         </template>
 
                     </b-table>
@@ -110,7 +113,7 @@
                 this.event_id = event.id;
                 this.event_name = event.name;
                 this.event_checkin = participations.filter(function (x) {return x.checkin }).length;
-                this.event_total = participations.length
+                this.event_total = participations.length;
                 this.loaded = true;
             },
             mapPerson(item){
@@ -118,10 +121,10 @@
                     "Id": item.id,
                     "Nome": item.name,
                     "Email": item.email,
-                    "Comparaceu": item.checkin ? "Sim" : "Não"
+                    "Compareceu": item.checkin ? "Sim" : "Não"
                 };
 
-                if(new_item.Comparaceu === "Sim")
+                if(new_item.Compareceu === "Sim")
                     new_item._rowVariant = "success";
 
                 return new_item;
@@ -173,27 +176,16 @@
 
                 console.log(participation);
 
+                await axios_client.post("/api/participation", participation);
+
                 await this.refreshContent()
+            },
+            openMeetup(id){
+                window.open("https://www.meetup.com/pt-BR/members/" + id, '_blank');
             }
         }
     }
 </script>
 
 <style>
-    .background-meetup{
-        background: #F64060;
-    }
-    .padding-lg{
-        padding: 1.2rem;
-    }
-    .style-events{
-        color: #ffffff;
-    }
-    .photo-participant{
-        border-style: none;
-        border-radius: 15rem;
-        vertical-align: unset;
-        height: 120px;
-        width: 110px;
-    }
 </style>
