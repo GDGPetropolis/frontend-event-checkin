@@ -39,12 +39,12 @@
                              @filtered="onFiltered">
 
                         <template slot="actions" slot-scope="row">
-                            <b-btn v-if="row.item.Compareceu == 'Não'" class="btn-success btn-sm" v-on:click="checkin(row.item.Id, true)">Check-in</b-btn>
-                            <b-btn v-else class="btn-danger btn-sm" v-on:click="checkin(row.item.Id, false)">Check-out</b-btn>
+                            <b-btn v-if="!row.item.checkin" class="btn-success btn-sm" v-on:click="checkin(row.item.id, true)">Check-in</b-btn>
+                            <b-btn v-else class="btn-danger btn-sm" v-on:click="checkin(row.item.id, false)">Check-out</b-btn>
 
-                            <b-btn class="btn-info btn-sm" v-on:click="openMeetup(row.item.Id)">Meetup</b-btn>
+                            <b-btn class="btn-info btn-sm" v-on:click="openMeetup(row.item.id)">Meetup</b-btn>
 
-                            <b-btn v-if="row.item.Email == null" variant="primary" class="btn-sm">Setup</b-btn>
+                            <b-btn v-if="row.item.email == null || row.item.nome == null" variant="primary" class="btn-sm">Setup</b-btn>
                         </template>
 
                     </b-table>
@@ -77,9 +77,9 @@
                 items: null,
                 fields: null,
                 currentPage: 1,
-                perPage: 15,
+                perPage: 25,
                 totalRows: 0,
-                pageOptions: [ 5, 10, 15 ],
+                pageOptions: [ 5, 10, 15, 20, 25 ],
                 filter: null,
                 event_id: null,
                 event_name: null,
@@ -109,7 +109,7 @@
                 });
 
                 this.items = persons.map(this.mapPerson);
-                this.fields = this.getFieldsOfItems(this.items);
+                this.fields = this.mapItems();
                 this.event_id = event.id;
                 this.event_name = event.name;
                 this.event_checkin = participations.filter(function (x) {return x.checkin }).length;
@@ -118,13 +118,14 @@
             },
             mapPerson(item){
                 var new_item = {
-                    "Id": item.id,
-                    "Nome": item.name,
-                    "Email": item.email,
-                    "Compareceu": item.checkin ? "Sim" : "Não"
+                    "id": item.id,
+                    "nick": item.nick,
+                    "nome": item.name,
+                    "email": item.email,
+                    "checkin": item.checkin
                 };
 
-                if(new_item.Compareceu === "Sim")
+                if(new_item.checkin)
                     new_item._rowVariant = "success";
 
                 return new_item;
@@ -142,21 +143,14 @@
                 var response = await axios_client.get("api/participation?event_id=" + this.$route.params.id);
                 return response.data;
             },
-            getFieldsOfItems(list) {
+            mapItems() {
                 var options = [];
-                var obj = list[0];
 
-                for(var k in obj){
-                    var testValue = {
-                        key: k,
-                        sortable: true
-                    }
-
-                    options.push(testValue);
-                }
-
-                var action = { key: 'actions', label: 'Ações' };
-                options.push(action);
+                options.push({ key: 'id', sortable: true });
+                options.push({ key: 'nick', sortable: true });
+                options.push({ key: 'nome', sortable: true });
+                options.push({ key: 'email', sortable: true });
+                options.push({ key: 'actions', label: 'Ações' });
 
                 return options;
             },

@@ -27,5 +27,11 @@
     }
 </script>
 
-<style>
+<style scoped>
+    a {
+        color: #eee;
+    }
+    a:hover {
+        color: #fff;
+    }
 </style>

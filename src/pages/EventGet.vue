@@ -68,9 +68,9 @@
                 items: null,
                 fields: null,
                 currentPage: 1,
-                perPage: 15,
+                perPage: 25,
                 totalRows: 0,
-                pageOptions: [ 5, 10, 15 ],
+                pageOptions: [ 5, 10, 15, 20, 25 ],
                 filter: null,
             }
         },
