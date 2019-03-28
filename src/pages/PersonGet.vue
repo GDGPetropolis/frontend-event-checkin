@@ -31,7 +31,8 @@
                              @filtered="onFiltered">
 
                         <template slot="actions" slot-scope="row">
-                            <router-link :to="{ path: '/' + 'event-put/' + row.item.Id }">Gerenciar</router-link>
+                            <MeetupButton v-bind:id="row.item.Id"/>
+                            <b-btn variant="primary" class="btn-sm" v-on:click="showModal(row.item.id)">Setup</b-btn>
                         </template>
 
                     </b-table>
@@ -45,18 +46,20 @@
             </b-row>
         </div>
         <div v-else>
-            <Loading></Loading>
+            <Loading/>
         </div>
     </b-container>
 </template>
 
 <script>
-    import Loading from "./../components/Loading.vue"
+    import Loading from "./../components/Loading.vue";
     import axios_client from "./../axios_client";
+    import MeetupButton from "./../components/MeetupButton.vue";
 
     export default {
         components: {
-            Loading
+            Loading,
+            MeetupButton
         },
         data () {
             return {
@@ -83,14 +86,15 @@
             mapEvent(item){
                 var new_item = {
                     "Id": item.id,
+                    "Nick": item.nick,
                     "Nome": item.name,
-                    "Data-Hora": item.local_date + " " + item.local_time,
+                    "Email": item.email
                 };
 
                 return new_item;
             },
             async get_events(){
-                var response = await axios_client.get("api/event");
+                var response = await axios_client.get("api/person");
                 return response.data.map(this.mapEvent);
             },
             onFiltered (filteredItems) {
@@ -121,20 +125,5 @@
 </script>
 
 <style>
-    .background-meetup{
-        background: #F64060;
-    }
-    .padding-lg{
-        padding: 1.2rem;
-    }
-    .style-events{
-        color: #ffffff;
-    }
-    .photo-participant{
-        border-style: none;
-        border-radius: 15rem;
-        vertical-align: unset;
-        height: 120px;
-        width: 110px;
-    }
+
 </style>

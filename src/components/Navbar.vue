@@ -8,6 +8,7 @@
             <b-navbar-nav>
                 <b-navbar-nav>
                     <b-nav-item><router-link to="/">Eventos</router-link></b-nav-item>
+                    <b-nav-item><router-link to="/person-get">Pessoas</router-link></b-nav-item>
                 </b-navbar-nav>
             </b-navbar-nav>
 

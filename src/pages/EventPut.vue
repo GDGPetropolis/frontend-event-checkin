@@ -43,7 +43,7 @@
                             <b-btn v-if="!row.item.checkin" class="btn-success btn-sm" v-on:click="checkin(row.item.id, true)">Check-in</b-btn>
                             <b-btn v-else class="btn-danger btn-sm" v-on:click="checkin(row.item.id, false)">Check-out</b-btn>
 
-                            <b-btn class="btn-info btn-sm" v-on:click="openMeetup(row.item.id)">Meetup</b-btn>
+                            <MeetupButton v-bind:id="row.item.id"/>
 
                             <b-btn variant="primary" class="btn-sm" v-on:click="showModal(row.item.id)">Setup</b-btn>
                         </template>
@@ -81,11 +81,13 @@
 
 <script>
     import Loading from "./../components/Loading.vue"
+    import MeetupButton from "./../components/MeetupButton.vue"
     import axios_client from "./../axios_client";
 
     export default {
         components: {
-            Loading
+            Loading,
+            MeetupButton
         },
         data () {
             return {
