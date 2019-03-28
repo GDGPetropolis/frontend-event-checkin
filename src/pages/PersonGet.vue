@@ -83,7 +83,7 @@
             }
         },
         async mounted () {
-            this.refreshContent();
+            await this.refreshContent();
             this.loaded = true;
         },
         beforeUpdate() {
@@ -92,6 +92,7 @@
         },
         methods: {
             async refreshContent() {
+                this.person_id = null;
                 this.items = await this.getPersons();
                 this.fields = this.getFieldsOfItems(this.items);
             },

@@ -40,7 +40,11 @@
         },
         watch: {
             id: function () {
-                this.$refs.modalPerson.show();
+                if (this.id != null){
+                    this.name = "";
+                    this.email = "";
+                    this.$refs.modalPerson.show();
+                }
             }
         }
     }
