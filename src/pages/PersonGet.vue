@@ -32,7 +32,7 @@
 
                         <template slot="actions" slot-scope="row">
                             <MeetupButton v-bind:id="row.item.Id"/>
-                            <b-btn variant="primary" class="btn-sm" v-on:click="showModal(row.item.id)">Setup</b-btn>
+                            <SetupPersonButton v-bind:id="row.item.Id" v-on:showSetupModalById="showSetupModalById($event)"/>
                         </template>
 
                     </b-table>
@@ -44,6 +44,10 @@
                     <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
                 </b-col>
             </b-row>
+
+            <b-row>
+                <SetupPersonModal v-bind:id="person_id" v-on:personSetupDone="refreshContent"/>
+            </b-row>
         </div>
         <div v-else>
             <Loading/>
@@ -53,13 +57,17 @@
 
 <script>
     import Loading from "./../components/Loading.vue";
+    import SetupPersonButton from "./../components/SetupPersonButton.vue";
     import axios_client from "./../axios_client";
     import MeetupButton from "./../components/MeetupButton.vue";
+    import SetupPersonModal from "./../components/SetupPersonModal.vue"
 
     export default {
         components: {
             Loading,
-            MeetupButton
+            MeetupButton,
+            SetupPersonButton,
+            SetupPersonModal
         },
         data () {
             return {
@@ -71,11 +79,11 @@
                 totalRows: 0,
                 pageOptions: [ 5, 10, 15, 20, 25 ],
                 filter: null,
+                person_id: null
             }
         },
         async mounted () {
-            this.items = await this.get_events();
-            this.fields = this.getFieldsOfItems(this.items);
+            this.refreshContent();
             this.loaded = true;
         },
         beforeUpdate() {
@@ -83,6 +91,10 @@
             this.fields = this.getFieldsOfItems(this.items);
         },
         methods: {
+            async refreshContent() {
+                this.items = await this.getPersons();
+                this.fields = this.getFieldsOfItems(this.items);
+            },
             mapEvent(item){
                 var new_item = {
                     "Id": item.id,
@@ -93,7 +105,7 @@
 
                 return new_item;
             },
-            async get_events(){
+            async getPersons(){
                 var response = await axios_client.get("api/person");
                 return response.data.map(this.mapEvent);
             },
@@ -119,6 +131,9 @@
                 options.push(action);
 
                 return options;
+            },
+            showSetupModalById(id){
+                this.person_id = id;
             }
         }
     }

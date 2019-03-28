@@ -44,8 +44,7 @@
                             <b-btn v-else class="btn-danger btn-sm" v-on:click="checkin(row.item.id, false)">Check-out</b-btn>
 
                             <MeetupButton v-bind:id="row.item.id"/>
-
-                            <b-btn variant="primary" class="btn-sm" v-on:click="showModal(row.item.id)">Setup</b-btn>
+                            <SetupPersonButton v-bind:id="row.item.id" v-on:showSetupModalById="showSetupModalById($event)"/>
                         </template>
 
                     </b-table>
@@ -57,37 +56,30 @@
                     <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
                 </b-col>
             </b-row>
+
+            <b-row>
+                <SetupPersonModal v-bind:id="person_id" v-on:personSetupDone="refreshContent"/>
+            </b-row>
         </div>
         <div v-else>
             <Loading/>
         </div>
-
-
-        <b-modal ref="myModalRef" size="lg" hide-footer title="Setup de Participante">
-            <b-row>
-                <b-col md="5">
-                    <b-input id="inlineFormInputName" placeholder="Informe o Nome..." v-model="modal_person.name"/>
-                </b-col>
-                <b-col md="5">
-                    <b-input id="inlineFormInputGroupUsername2" placeholder="Informe o Email..." v-model="modal_person.email"/>
-                </b-col>
-                <b-col md="2">
-                    <b-button variant="primary" v-on:click="doModalPersonSetup">Fazer Setup</b-button>
-                </b-col>
-            </b-row>
-        </b-modal>
     </b-container>
 </template>
 
 <script>
     import Loading from "./../components/Loading.vue"
     import MeetupButton from "./../components/MeetupButton.vue"
+    import SetupPersonButton from "./../components/SetupPersonButton.vue"
+    import SetupPersonModal from "./../components/SetupPersonModal.vue"
     import axios_client from "./../axios_client";
 
     export default {
         components: {
             Loading,
-            MeetupButton
+            MeetupButton,
+            SetupPersonButton,
+            SetupPersonModal
         },
         data () {
             return {
@@ -103,11 +95,7 @@
                 event_name: null,
                 event_total: null,
                 event_checkin: null,
-                modal_person: {
-                    id: null,
-                    name: null,
-                    email: null
-                }
+                person_id: null,
             }
         },
         async mounted () {
@@ -115,12 +103,9 @@
         },
         beforeUpdate() {
             this.totalRows = this.items.length;
-            this.fields = this.mapItems();
+            this.fields = this.mapFields();
         },
         methods: {
-            isNullOfStringEmpty(value) {
-                return value === null || value === "";
-            },
             async refreshContent(){
                 var event = await this.get_event();
                 var persons = event.persons;
@@ -135,7 +120,7 @@
                 });
 
                 this.items = persons.map(this.mapPerson);
-                this.fields = this.mapItems();
+                this.fields = this.mapFields();
                 this.event_id = event.id;
                 this.event_name = event.name;
                 this.event_checkin = participations.filter(function (x) {return x.checkin }).length;
@@ -169,7 +154,7 @@
                 var response = await axios_client.get("api/participation?event_id=" + this.$route.params.id);
                 return response.data;
             },
-            mapItems() {
+            mapFields() {
                 var options = [];
 
                 options.push({ key: 'id', sortable: true });
@@ -200,24 +185,13 @@
 
                 await this.refreshContent()
             },
-            openMeetup(id){
-                window.open("https://www.meetup.com/pt-BR/members/" + id, '_blank');
-            },
             async genCertificates() {
                 this.loaded = false;
                 await axios_client.post("/api/event/gen?id=" + this.$route.params.id);
                 this.loaded = true;
             },
-            showModal(id){
-                this.modal_person.id = id;
-                this.modal_person.name = "";
-                this.modal_person.email = "";
-                this.$refs.myModalRef.show()
-            },
-            async doModalPersonSetup(){
-                await axios_client.put("/api/person", this.modal_person);
-                await this.refreshContent();
-                this.$refs.myModalRef.hide();
+            showSetupModalById(id){
+                this.person_id = id;
             }
         }
     }
