@@ -5,7 +5,7 @@
                 <b-col style="padding: 20px 20px 20px 20px;" md="6" class="my-1">
                     <h4> {{event_name}} ({{event_checkin}}/{{event_total}}) </h4>
                     <b-btn class="btn-warning btn-sm" v-on:click="syncWithMeetup">Sincronizar com Meetup</b-btn>
-                    <b-btn class="btn-warning btn-sm" v-on:click="sendCertifications" disabled>Enviar Certificados</b-btn>
+                    <b-btn class="btn-warning btn-sm" v-on:click="genCertificates">Gerar Certificados</b-btn>
                 </b-col>
             </b-row>
 
@@ -201,8 +201,10 @@
             openMeetup(id){
                 window.open("https://www.meetup.com/pt-BR/members/" + id, '_blank');
             },
-            sendCertifications() {
-
+            async genCertificates() {
+                this.loaded = false;
+                await axios_client.post("/api/event/gen?id=" + this.$route.params.id);
+                this.loaded = true;
             },
             showModal(id){
                 this.modal_person.id = id;
