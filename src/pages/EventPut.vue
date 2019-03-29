@@ -58,7 +58,7 @@
             </b-row>
 
             <b-row>
-                <SetupPersonModal v-bind:id="person_id" v-on:personSetupDone="refreshContent"/>
+                <SetupPersonModal v-on:personSetupDone="refreshContent" ref='SetupPersonModal'/>
             </b-row>
         </div>
         <div v-else>
@@ -94,8 +94,7 @@
                 event_id: null,
                 event_name: null,
                 event_total: null,
-                event_checkin: null,
-                person_id: null,
+                event_checkin: null
             }
         },
         async mounted () {
@@ -107,7 +106,6 @@
         },
         methods: {
             async refreshContent(){
-                this.person_id = null;
                 var event = await this.get_event();
                 var persons = event.persons;
                 var participations = await this.get_participations();
@@ -192,7 +190,7 @@
                 this.loaded = true;
             },
             showSetupModalById(id){
-                this.person_id = id;
+                this.$refs.SetupPersonModal.showModal(id);
             }
         }
     }

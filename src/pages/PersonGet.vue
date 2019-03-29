@@ -46,7 +46,7 @@
             </b-row>
 
             <b-row>
-                <SetupPersonModal v-bind:id="person_id" v-on:personSetupDone="refreshContent"/>
+                <SetupPersonModal v-on:personSetupDone="refreshContent" ref='SetupPersonModal'/>
             </b-row>
         </div>
         <div v-else>
@@ -78,8 +78,7 @@
                 perPage: 25,
                 totalRows: 0,
                 pageOptions: [ 5, 10, 15, 20, 25 ],
-                filter: null,
-                person_id: null
+                filter: null
             }
         },
         async mounted () {
@@ -92,7 +91,6 @@
         },
         methods: {
             async refreshContent() {
-                this.person_id = null;
                 this.items = await this.getPersons();
                 this.fields = this.getFieldsOfItems(this.items);
             },
@@ -112,7 +110,7 @@
             },
             onFiltered (filteredItems) {
                 // Trigger pagination to update the number of buttons/pages due to filtering
-                this.totalRows = filteredItems.length
+                this.totalRows = filteredItems.length;
                 this.currentPage = 1
             },
             getFieldsOfItems(list) {
@@ -134,7 +132,7 @@
                 return options;
             },
             showSetupModalById(id){
-                this.person_id = id;
+                this.$refs.SetupPersonModal.showModal(id);
             }
         }
     }
