@@ -91,8 +91,10 @@
         },
         methods: {
             async refreshContent() {
+                this.loaded = false;
                 this.items = await this.getPersons();
                 this.fields = this.getFieldsOfItems(this.items);
+                this.loaded = true;
             },
             mapEvent(item){
                 var new_item = {

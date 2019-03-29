@@ -106,6 +106,7 @@
         },
         methods: {
             async refreshContent(){
+                this.loaded = false;
                 var event = await this.get_event();
                 var persons = event.persons;
                 var participations = await this.get_participations();
